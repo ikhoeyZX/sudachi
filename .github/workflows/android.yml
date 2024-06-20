@@ -46,8 +46,10 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
+          chmod 777 -R /home/runner/work/_temp/*
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
           cd src/android
+          chmod 777 -R *
           ./gradlew --info --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleMainlineRelease
           
       - name: Compute git short sha

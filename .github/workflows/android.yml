@@ -46,10 +46,12 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
+          sudo apt-get update
+          sudo apt-get install glslang-tools
           chmod 777 -R /home/runner/work/_temp/*
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
+          export DEB_CFLAGS_MAINT_APPEND  = -Wno-unused-function
           cd src/android
-          sudo apt-get install glslang-tools
           chmod 777 -R *
           ./gradlew --info --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleMainlineRelease
           

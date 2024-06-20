@@ -116,7 +116,6 @@ else()
         -Werror=extra
         -Werror=missing-declarations
         -Werror=shadow
-        -Werror=unused
 
         -Wno-attributes
         -Wno-invalid-offsetof

@@ -48,11 +48,11 @@ jobs:
         run: |
           sudo apt-get install glslang-tools
           chmod 777 -R /home/runner/work/_temp/*
+          echo off
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
-          export DEB_CFLAGS_MAINT_APPEND  = -Wno-unused-function
           cd src/android
           chmod 777 -R *
-          ./gradlew --info --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleMainlineRelease
+          ./gradlew --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleMainlineRelease
           
       - name: Compute git short sha
         shell: bash

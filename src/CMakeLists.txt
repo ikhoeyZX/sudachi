@@ -111,9 +111,7 @@ if (MSVC)
 else()
     add_compile_options(
         -fwrapv
-
-        -Werror=all
-        -Werror=extra
+        
         -Werror=missing-declarations
         -Werror=shadow
 

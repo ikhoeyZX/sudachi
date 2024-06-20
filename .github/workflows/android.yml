@@ -49,7 +49,7 @@ jobs:
           chmod 777 -R /home/runner/work/_temp/*
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
           cd src/android
-          ln -s /usr/bin/glslang /usr/bin/glslangValidator
+          sudo apt-get install glslang-tools
           chmod 777 -R *
           ./gradlew --info --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleMainlineRelease
           

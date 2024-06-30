@@ -52,7 +52,7 @@ jobs:
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
           cd src/android
           chmod 777 -R *
-          ./gradlew --info --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleEaRelease
+          ./gradlew build
           
       - name: Compute git short sha
         shell: bash

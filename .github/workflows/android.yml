@@ -1,0 +1,71 @@
+name: Android build
+
+# this is greatly inspired by skyline ci build file
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JVM_OPTS: -Xmx6G
+      VCPKG_ROOT: /usr/local/share/vcpkg
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+ 
+      - uses: hendrikmuhs/ccache-action@v1.2
+
+      - name: Restore Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/
+            ${{ env.VCPKG_ROOT }}/installed
+            ${{ env.VCPKG_ROOT }}/packages
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-${{ hashFiles('android/**/*.xml') }}-${{ hashFiles('android/**.java') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-${{ hashFiles('android/**/*.xml') }}-
+            ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-
+            ${{ runner.os }}-gradle-
+
+      - name: Decode Keystore
+        env:
+          KEYSTORE_ENCODED: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+        run: echo $KEYSTORE_ENCODED | base64 --decode > "/home/runner/keystore.jks"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+  
+      - name: Gradle build
+        env:
+          SIGNING_STORE_PATH: "/home/runner/keystore.jks"
+          SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+        run: |
+          sudo apt-get install glslang-tools
+          chmod 777 -R /home/runner/work/_temp/*
+          echo off
+          export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
+          cd src/android
+          chmod 777 -R *
+          ./gradlew --info --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleEaRelease
+          
+      - name: Compute git short sha
+        shell: bash
+        run: echo "git_short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: List all files in output folder
+        run: |
+          ls -l android/build/outputs/apk/
+          echo "-----------------------------"
+          ls -l android/build/outputs/apk/*/*
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sudachi-${{ env.git_short_sha }}-release.apk
+          path: android/build/outputs/apk/release/android-release.apk
+          
